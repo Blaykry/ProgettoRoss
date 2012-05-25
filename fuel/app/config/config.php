@@ -73,9 +73,9 @@ return array(
 	/**
 	 * Localization & internationalization settings
 	 */
-	'language'           => 'en', // Default language
-	'language_fallback'  => 'en', // Fallback language when file isn't available for default language
-	'locale'             => 'en_US', // PHP set_locale() setting, null to not set
+	'language'           => 'it', // Default language
+	'language_fallback'  => 'it', // Fallback language when file isn't available for default language
+	'locale'             => 'it_IT', // PHP set_locale() setting, null to not set
 
 	'encoding'  => 'UTF-8',
 
@@ -210,7 +210,7 @@ return array(
 		 * );
 		 */
 		'packages'  => array(
-			//'orm',
+			'orm',
 		),
 
 		/**
