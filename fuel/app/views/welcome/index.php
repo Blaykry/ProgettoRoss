@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>FuelPHP Framework</title>
+	<title>Progetto Ross Home Page</title>
 	<?php echo Asset::css('bootstrap.css'); ?>
 	<style>
 		#logo{
@@ -46,18 +46,18 @@
 			<p><a class="btn primary large" href="http://docs.fuelphp.com">Read the Docs</a></p>
 		</div>
 		<div class="row">
-			<div class="span-one-third">
+			<div class="span4">
 				<h2>Get Started</h2>
 				<p>The controller generating this page is found at <code>APPPATH/classes/controller/welcome.php</code>.</p>
 				<p>This view can be found at <code>APPPATH/views/welcome/index.php</code>.</p>
 				<p>You can modify these files to get your application started quickly.</p>
 			</div>
-			<div class="span-one-third">
+			<div class="span4">
 				<h2>Learn</h2>
 				<p>The best way to learn FuelPHP is reading through the <a href="http://docs.fuelphp.com">Documentation</a>.</p>
 				<p>Another good resource is the <a href="http://fuelphp.com/forums">Forums</a>.  They are fairly active, and you can usually get a response quickly.</p>
 			</div>
-			<div class="span-one-third">
+			<div class="span4">
 				<h2>Contribute</h2>
 				<p>FuelPHP wouldn't exist without awesome contributions from the community.  Use the links below to get contributing.</p>
 				<ul>
@@ -68,11 +68,17 @@
 			</div>
 		</div>
 		<footer>
-			<p class="pull-right">Page rendered in {exec_time}s using {mem_usage}mb of memory.</p>
-			<p>
-				<a href="http://fuelphp.com">FuelPHP</a> is released under the MIT license.<br>
-				<small>Version: <?php echo e(Fuel::VERSION); ?></small>
-			</p>
+			<div class="row">
+				<div class="span6">
+					<p >Page rendered in {exec_time}s using {mem_usage}mb of memory.</p>
+				</div>
+				<div class="span6">
+					<p class="pull-right">
+						<a href="http://fuelphp.com">FuelPHP</a> is released under the MIT license.<br>
+						<small>Version: <?php echo e(Fuel::VERSION); ?></small>
+					</p>
+				</div>
+			</div>
 		</footer>
 	</div>
 </body>
