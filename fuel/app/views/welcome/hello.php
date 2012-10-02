@@ -41,7 +41,7 @@
 	</div>
 	<div class="container">
 		<div class="row">
-			<div class="span12">
+			<div class="span16">
 				<h1>Hello, <?php echo $name; ?>! <small>Congratulations, you just used a ViewModel!</small></h1>
 				<hr>
 				<p>The controller generating this page is found at <code>APPPATH/classes/controller/welcome.php</code>.</p>

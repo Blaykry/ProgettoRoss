@@ -6,7 +6,7 @@
 return array(
 	'default' => array(
 		'connection'  => array(
-			'dsn'        => 'mysql:host=localhost;dbname=db_progettoross',
+			'dsn'        => 'mysql:host=localhost;dbname=rapportini_db',
 			'username'   => 'root',
 			'password'   => 'ftg',
 		),

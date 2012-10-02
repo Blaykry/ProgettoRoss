@@ -260,12 +260,12 @@ class View
 	{
 		$clean_it = function ($data, $rules, $auto_filter)
 		{
-			foreach ($data as $key => $value)
+			foreach ($data as $key => &$value)
 			{
 				$filter = array_key_exists($key, $rules) ? $rules[$key] : null;
 				$filter = is_null($filter) ? $auto_filter : $filter;
 
-				$data[$key] = $filter ? \Security::clean($value, null, 'security.output_filter') : $value;
+				$value = $filter ? \Security::clean($value, null, 'security.output_filter') : $value;
 			}
 
 			return $data;
@@ -393,6 +393,8 @@ class View
 	 *
 	 *     $value = $view->get('foo', 'bar');
 	 *
+	 * If the key is not given or null, the entire data array is returned.
+	 *
 	 * If a default parameter is not given and the variable does not
 	 * exist, it will throw an OutOfBoundsException.
 	 *
@@ -401,9 +403,13 @@ class View
 	 * @return  mixed
 	 * @throws  OutOfBoundsException
 	 */
-	public function &get($key, $default = null)
+	public function &get($key = null, $default = null)
 	{
-		if (array_key_exists($key, $this->data))
+		if (func_num_args() === 0 or $key === null)
+		{
+			return $this->data;
+		}
+		elseif (array_key_exists($key, $this->data))
 		{
 			return $this->data[$key];
 		}
@@ -418,7 +424,9 @@ class View
 		}
 		else
 		{
-			return \Fuel::value($default);
+			// assign it first, you can't return a return value by reference directly!
+			$default = \Fuel::value($default);
+			return $default;
 		}
 	}
 

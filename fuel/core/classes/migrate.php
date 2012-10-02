@@ -188,24 +188,20 @@ class Migrate
 		// get the current version info from the config
 		$current = \Config::get('migrations.version.'.$type.'.'.$name);
 
-		// any migrations defined?
-		if ( ! empty($current))
+		// get the last migration installed
+		$current = empty($current) ? null : end($current);
+
+		// get the available migrations after the current one
+		$migrations = static::find_migrations($name, $type, $current, $version);
+
+		// found any?
+		if ( ! empty($migrations))
 		{
-			// get the last entry
-			$current = end($current);
+			// if no version was given, only install the next migration
+			is_null($version) and $migrations = array(reset($migrations));
 
-			// get the available migrations after the current one
-			$migrations = static::find_migrations($name, $type, $current, $version);
-
-			// found any?
-			if ( ! empty($migrations))
-			{
-				// if no version was given, only install the next migration
-				is_null($version) and $migrations = array(reset($migrations));
-
-				// install migrations found
-				return static::run($migrations, $name, $type, 'up');
-			}
+			// install migrations found
+			return static::run($migrations, $name, $type, 'up');
 		}
 
 		// nothing to migrate
@@ -272,7 +268,13 @@ class Migrate
 		foreach ($migrations as $ver => $migration)
 		{
 			logger(Fuel::L_INFO, 'Migrating to version: '.$ver);
-			call_user_func(array(new $migration['class'], $method));
+			$result = call_user_func(array(new $migration['class'], $method));
+			if ($result === false)
+			{
+				logger(Fuel::L_INFO, 'Skipped migration to '.$ver.'.');
+				return $done;
+			}
+
 			$file = basename($migration['path'], '.php');
 			$method == 'up' ? static::write_install($name, $type, $file) : static::write_revert($name, $type, $file);
 			$done[] = $file;
@@ -429,11 +431,11 @@ class Migrate
 				// make sure it exists in the migration file loaded
 				if ( ! class_exists($class, false))
 				{
-					throw new FuelException(sprintf('Migration "%s" does not contain expected class "%s"', $file, $class));
+					throw new FuelException(sprintf('Migration "%s" does not contain expected class "%s"', $migration['path'], $class));
 				}
 
 				// and that it contains an "up" and "down" method
-				if ( ! is_callable(array($class, 'up')) || ! is_callable(array($class, 'down')))
+				if ( ! is_callable(array($class, 'up')) or ! is_callable(array($class, 'down')))
 				{
 					throw new FuelException(sprintf('Migration class "%s" must include public methods "up" and "down"', $name));
 				}
@@ -442,7 +444,7 @@ class Migrate
 			}
 			else
 			{
-				throw new FuelException(sprintf('Invalid Migration filename "%s"', $file));
+				throw new FuelException(sprintf('Invalid Migration filename "%s"', $migration['path']));
 			}
 		}
 
@@ -507,15 +509,27 @@ class Migrate
 	 */
 	protected static function _find_package($name = null)
 	{
+		$files = array();
+
 		if ($name)
 		{
 			// find a package
-			$files = glob(PKGPATH.$name.'/'.\Config::get('migrations.folder').'*_*.php');
+			foreach (\Config::get('package_paths', array(PKGPATH)) as $p)
+			{
+				$files = glob($p .$name.'/'.\Config::get('migrations.folder').'*_*.php');
+				if (count($files))
+				{
+					break;
+				}
+			}
 		}
 		else
 		{
 			// find all packages
-			$files = glob(PKGPATH.'*/'.\Config::get('migrations.folder').'*_*.php');
+			foreach (\Config::get('package_paths', array(PKGPATH)) as $p)
+			{
+				$files = array_merge($files, glob($p.'*/'.\Config::get('migrations.folder').'*_*.php'));
+			}
 		}
 
 		return $files;
@@ -564,7 +578,7 @@ class Migrate
 				foreach ($current as $migration)
 				{
 					// find the migrations for this entry
-					$migrations = static::find_migrations($migration['name'], $migration['type'], 0, $migration['version']);
+					$migrations = static::find_migrations($migration['name'], $migration['type'], null, $migration['version']);
 
 					// array to keep track of the migrations already run
 					$config = array();
@@ -595,5 +609,8 @@ class Migrate
 				\Config::save(\Fuel::$env.DS.'migrations', 'migrations');
 			}
 		}
+
+		// delete any old migration config file that may exist
+		file_exists(APPPATH.'config'.DS.'migrations.php') and unlink(APPPATH.'config'.DS.'migrations.php');
 	}
 }

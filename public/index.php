@@ -13,17 +13,17 @@ define('DOCROOT', __DIR__.DIRECTORY_SEPARATOR);
 /**
  * Path to the application directory.
  */
-define('APPPATH', realpath(__DIR__.'/fuel/app/').DIRECTORY_SEPARATOR);
+define('APPPATH', realpath(__DIR__.'/../fuel/app/').DIRECTORY_SEPARATOR);
 
 /**
  * Path to the default packages directory.
  */
-define('PKGPATH', realpath(__DIR__.'/fuel/packages/').DIRECTORY_SEPARATOR);
+define('PKGPATH', realpath(__DIR__.'/../fuel/packages/').DIRECTORY_SEPARATOR);
 
 /**
  * The path to the framework core.
  */
-define('COREPATH', realpath(__DIR__.'/fuel/core/').DIRECTORY_SEPARATOR);
+define('COREPATH', realpath(__DIR__.'/../fuel/core/').DIRECTORY_SEPARATOR);
 
 // Get the start time and memory for use later
 defined('FUEL_START_TIME') or define('FUEL_START_TIME', microtime(true));
@@ -40,9 +40,19 @@ try
 catch (HttpNotFoundException $e)
 {
 	$route = array_key_exists('_404_', Router::$routes) ? Router::$routes['_404_']->translation : Config::get('routes._404_');
-	if ($route)
+
+	if($route instanceof Closure)
 	{
-		$response = Request::forge($route)->execute()->response();
+		$response = $route();
+		
+		if( ! $response instanceof Response)
+		{
+			$response = Response::forge($response);
+		}
+	}
+	elseif ($route)
+	{
+		$response = Request::forge($route, false)->execute()->response();
 	}
 	else
 	{
